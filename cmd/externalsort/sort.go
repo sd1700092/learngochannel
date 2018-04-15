@@ -10,7 +10,7 @@ import (
 func main() {
 	p := createPipeline(
 		//"small.in", 512, 4)
-		"large.out", 800000000, 4)
+		"large.in", 800000000, 4)
 	writeToFile(p, "small.out")
 	printFile("small.out")
 	writeToFile(p, "large.out")
