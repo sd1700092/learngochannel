@@ -2,17 +2,17 @@ package main
 
 import (
 	"os"
-	"practice/learnchannel/pipeline"
 	"bufio"
 	"fmt"
+	"learngochannel/pipeline"
 )
 
 func main() {
 	p := createPipeline(
-		//"small.in", 512, 4)
+		//"small.in", 512, 4) //512意味着64个数
 		"large.in", 800000000, 4)
-	writeToFile(p, "small.out")
-	printFile("small.out")
+	//writeToFile(p, "small.out")
+	//printFile("small.out")
 	writeToFile(p, "large.out")
 	printFile("large.out")
 }
@@ -55,7 +55,7 @@ func createPipeline(filename string, fileSize, chunkCount int) <-chan int {
 		if err != nil {
 			panic(err)
 		}
-		file.Seek(int64(i*chunkSize), 0)
+		file.Seek(int64(i*chunkSize), 0) //传0代表偏移量为0，即从头开始。
 		source := pipeline.ReaderSource(bufio.NewReader(file), chunkSize)
 		sortResults = append(sortResults, pipeline.InMemSort(source))
 

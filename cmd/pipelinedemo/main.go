@@ -1,15 +1,18 @@
 package main
 
 import (
-	"practice/learnchannel/pipeline"
 	"fmt"
+	"learngochannel/pipeline"
 	"os"
 	"bufio"
 )
 
 func main() {
 	const filename = "large.in"
-	const n = 64
+	//fmt.Println("rand int = ", rand.Int())
+	//const filename = "small.in"
+	//const n = 64
+	const n = 100000000
 	file, err := os.Create(filename)
 	if err != nil {
 		panic(err)
@@ -17,6 +20,9 @@ func main() {
 	defer file.Close()
 
 	p := pipeline.RandomSource(n)
+	//for v := range (p){
+	//	fmt.Println(v)
+	//}
 	writer := bufio.NewWriter(file)
 	pipeline.WriterSink(writer, p)
 	writer.Flush()
@@ -31,7 +37,7 @@ func main() {
 	p = pipeline.ReaderSource(bufio.NewReader(file), -1)
 	count := 0
 	for v := range p {
-		fmt.Println(v)
+		fmt.Println("value read = ", v)
 		count++
 		if count >= 100 {
 			break

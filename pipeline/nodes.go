@@ -14,9 +14,9 @@ func Init(){
 	startTime = time.Now()
 }
 
-func ArraySource(a ...int) <-chan int {
+func ArraySource(a ...int) <-chan int { //这个函数的目的是把int类型的数据都导入到channel里面去
 	out := make(chan int)
-	//channel是goroutine和goroutine之间的通信，不能自己导
+	//channel是goroutine和goroutine之间的通信，不能自己导，一定要用go func
 	go func() {
 		for _, v := range (a) {
 			out <- v
@@ -68,15 +68,15 @@ func Merge(in1, in2 <-chan int) <-chan int {
 	return out
 }
 
-func ReaderSource(reader io.Reader, chunkSize int) <-chan int {
+func ReaderSource(reader io.Reader, chunkSize int) <-chan int { // 如果传的是-1，代表读全部文件
 	out := make(chan int, 1024)
 	go func() {
 		buffer := make([]byte, 8)
 		bytesRead:=0
 		for {
-			n, err := reader.Read(buffer)
+			n, err := reader.Read(buffer) //n返回我读到了多少个字节
 			bytesRead+=n
-			if n > 0 {
+			if n > 0 { //代表已经读到了数据
 				v := int(binary.BigEndian.Uint64(buffer))
 				out <- v
 			}
