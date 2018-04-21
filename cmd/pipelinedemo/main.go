@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"learngochannel/pipeline"
 	"os"
 	"bufio"
+	"practice/learnchannel/pipeline"
 )
 
 func main() {

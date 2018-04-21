@@ -4,17 +4,21 @@ import (
 	"os"
 	"bufio"
 	"fmt"
-	"learngochannel/pipeline"
+	"practice/learnchannel/pipeline"
+	"strconv"
+	//"time"
 )
 
 func main() {
-	p := createPipeline(
-		//"small.in", 512, 4) //512意味着64个数
-		"large.in", 800000000, 4)
-	//writeToFile(p, "small.out")
-	//printFile("small.out")
-	writeToFile(p, "large.out")
-	printFile("large.out")
+	//p := createPipeline(
+	//"small.in", 512, 4) //512意味着64个数
+	//"large.in", 800000000, 4)
+	p := createNetworkPipeline("small.in", 512, 4)
+	//time.Sleep(time.Hour)
+	writeToFile(p, "small.out")
+	printFile("small.out")
+	//writeToFile(p, "large.out")
+	//printFile("large.out")
 }
 
 func printFile(filename string) {
@@ -24,11 +28,11 @@ func printFile(filename string) {
 	}
 	defer file.Close()
 	p := pipeline.ReaderSource(file, -1)
-	count:=0
+	count := 0
 	for v := range p {
 		fmt.Println(v)
 		count++
-		if count>=100{
+		if count >= 100 {
 			break
 		}
 	}
@@ -61,5 +65,29 @@ func createPipeline(filename string, fileSize, chunkCount int) <-chan int {
 
 	}
 
+	return pipeline.MergeN(sortResults...)
+}
+
+func createNetworkPipeline(filename string, fileSize, chunkCount int) <-chan int {
+	chunkSize := fileSize / chunkCount
+	pipeline.Init()
+	sortAddr := []string{}
+	for i := 0; i < chunkCount; i++ {
+		file, err := os.Open(filename)
+		if err != nil {
+			panic(err)
+		}
+		file.Seek(int64(i*chunkSize), 0)
+		source := pipeline.ReaderSource(bufio.NewReader(file), chunkSize)
+		addr := ":" + strconv.Itoa(7000+i)
+		pipeline.NetworkSink(addr, pipeline.InMemSort(source))
+		sortAddr = append(sortAddr, addr)
+	}
+
+	//return nil
+	sortResults := []<-chan int{}
+	for _, addr := range sortAddr {
+		sortResults = append(sortResults, pipeline.NetworkSource(addr))
+	}
 	return pipeline.MergeN(sortResults...)
 }
